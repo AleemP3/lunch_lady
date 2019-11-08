@@ -13,7 +13,7 @@ end
 
 
 class Food 
-  attr_accessor :main, :side
+  attr_accessor :main, :side, :extras, :clone_main, :clone_side, :clone_extras 
 
   def initialize
     @main = [
@@ -25,6 +25,12 @@ class Food
      { name:"Mash Potatoes", cost: 50 },
      { name:"French Fries", cost: 50 }
     ]
+    @extras = [
+      { name: "Ice Cream", cost: 10 },
+      { name: "Cake", cost: 25 },
+      { name: "Tequila", cost: 50 }
+    ]
+    
     
   end 
 end 
@@ -133,16 +139,57 @@ class Lunch_lady < Food
         @customer.meal << @food.side[second_choice - 1]
         @total << @food.side[second_choice - 1][:cost]
         deduction_side(second_choice - 1)
-        total
+        more
+        
       when 2
         @customer.meal << @food.side[second_choice - 1]
         @total << @food.side[second_choice - 1][:cost]
         deduction_side(second_choice - 1)
-        total
+        more 
+        
       else 
         puts "Invalid Choice"
         second_choice
       end 
+  end 
+
+  def more 
+    puts "Would you like extras? (y/n)"
+    pick = gets.strip 
+    case pick 
+      when "y"
+        add_on 
+      when "n" 
+        total 
+      else 
+        exit 
+      end 
+  end 
+
+  def add_on
+      puts "please select an extra item"
+        @food.extras.each_with_index { |food, index|
+        puts "#{index + 1}) #{food[:name]} #{food[:cost]}" }
+
+        add = gets.to_i 
+
+        case add
+          when 1
+            @customer.meal << @food.extras[add - 1]
+            @total << @food.extras[add - 1][:cost]
+            more 
+          when 2
+            @customer.meal << @food.extras[add - 1]
+            @total << @food.extras[add - 1][:cost]
+            more 
+          when 3
+            @customer.meal << @food.extras[add - 1]
+            @total << @food.extras[add - 1][:cost]
+            more 
+          else 
+            puts "invalid Option"
+            add_on
+          end 
   end 
 
   def deduction(index)
@@ -153,14 +200,29 @@ class Lunch_lady < Food
   def deduction_side(index)
     @customer.cost << @customer.cost.last - @food.side[index][:cost]
     puts "Your new total is.. #{@customer.cost.last}"
-  end 
+  end
 
   def total
-    @customer.meal.each do |lunch|
+    puts "Would you like to start over? (y/n)"
+      case gets.strip 
+        when "y"
+          clear
+        when "n" 
+       @customer.meal.each do |lunch|
       puts "You will be having.. #{lunch[:name]}" 
-    end
+      end
       puts "A total of... #{@customer.meal.length} items"
       puts "At the cost of... $#{@total.inject(:+)}"
+    else 
+      puts "Invalid Option"
+    end 
+  end 
+
+  def clear 
+    @total.clear
+    @customer.meal.clear 
+    customer.cost.clear 
+    order 
   end 
 
   def order
